@@ -1,0 +1,123 @@
+MultiThreading
+---------------
+
+1. Different ways of creating thread.
+    a. Extending Thread class
+    b. Implements Runnable interface 
+2. Setting a name and getting name from the Thread
+    a. public void setName(String name)
+    b. public String getName()
+    Lifecycle of a Thread
+    new/born --start()----> ready/runnable-- it allocates cpu time  -- > running --- run() completes ---> deadstate
+
+3. Methods to prevent a Thread from execution
+    a. join() -> To make another thread to wait till it finsihes the execution.
+    b. sleep() -> To stop/pause the execution of a thread for sometime
+4. Synchronization
+    => this concept is applicable at method level and block level.
+    => if we apply synchronization at block level or at method level then only one thread
+        is allowed to execute the block or a method.
+    => Advantage -> it resolves the problem of "Data Incosistencey/race condition".
+    => DisAdvantage->It increase the waiting time for other threads.
+
+Note: In java we have 2 levels of lock
+    a. class level lock => A thread which needs to execute static synchronized block/method needs class level lock.
+    This lock is very unique at the class level.
+
+    b. object level lock => A thread which needs to execute synchronized block/method needs object level lock. 
+    This lock is very unique at the Object level.
+
+InterThread Communication
+---------------------------
+
+Two threads should interact with each other, how?
+
+eg: Producer Consumer Problem
+
+ProducerEnd
+    => Producer data is to produce the data and once the data is produced update the variable called "DataProvider" to true
+    => This action should be done by "Producer Thread"
+
+Consumer End
+    => Consumer Thread should consume the data produced by the Producer
+    => Consumer Thread should check the dataprovider status,if it is true consume the data otherwise sleep for some time and again check for the dataprovider status
+
+
+
+
+class Producer extends Thread{
+
+    StringBuffer sb;
+
+    boolean dataProvider = false;
+
+    public Producer(){
+        //String buffer object is create with a default capacity 16
+        sb = new StringBuffer();
+    }
+
+    @Override
+    public void run(){
+        for(int i=1;i<=10;i++){
+            try{
+                sb.append(i+": ");
+                Thread.sleep(100);
+                System.out.println("appending");
+            }
+            catch(InterruptedException e){
+                e.printStackTrace();
+            }
+        }
+        // informing the consumer that data is produced
+        dataProvider = true;
+    }
+}
+
+class Consumer extends Thread{
+     Producer producer;
+
+     public Consumer(Producer producer){
+        this.producer = producer;
+     }
+
+
+    @Override
+    public void run(){
+        while(producer.dataProvider == false){
+            try{
+                Thread.sleep(10);
+            }catch(InterruptedException e){
+                e.printStackTrace();
+            }
+        }
+        // consume the data produced by the producer
+        System.out.println(producer.sb);
+    }
+}
+
+// Inefficient way of interthread coomunication
+public class Communication {
+    public static void main(String[] args) {
+        Producer obj1 = new Producer();
+        Consumer obj2 = new Consumer(obj1);
+    
+        Thread t1 = new Thread(obj1);// Producer thread 
+        Thread t2 = new Thread(obj2);// consumer thread
+    
+        t2.start(); // consumer should wait
+        t1.start(); // producer should wait
+
+    }
+}
+
+In the above code when the interaction happens b/w 2 threads, always the consumer thread is ready for consumption, but the consumer thread will get the data only when the dataProvider value is set to true.
+
+This increases the waiting time of a thread and makes the cpu time idle, through which communication b/w 2 threads wont be efficient.
+
+To reduce the effieciency problem we use the methods given by Object class
+
+    a.wait()
+    b.notify()
+    c.notifyAll()
+
+    02:06:09
