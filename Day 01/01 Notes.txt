@@ -42,7 +42,7 @@ Consumer End
     => Consumer Thread should consume the data produced by the Producer
     => Consumer Thread should check the dataprovider status,if it is true consume the data otherwise sleep for some time and again check for the dataprovider status
 
-
+Note: only wait(),notify(),notifyAll() have the mechanism to release the automatically, where as sleep(),join() these methods can't release the lock.
 
 
 class Producer extends Thread{
@@ -120,4 +120,174 @@ To reduce the effieciency problem we use the methods given by Object class
     b.notify()
     c.notifyAll()
 
-    02:06:09
+Note:
+wait(),notify(),notifyAll() methods are present in Object class not in Thread class.
+
+If any thread has to call wait(),notify(), notifyAll() then that thread should be the owner of the thread.
+
+We say the thread as owner iff the thread has the lock of the object.
+
+If the thread calls notify(),notifyAll() and wait() and the thread is not a owner then it would result in
+
+RE: "IllegalMonitorStateException".
+
+
+wait() -> Whichever thread want the updated result from the object that thread should call wait method.
+
+Whenever wait() is called automatically that thread will release the lock of the Object to the other thread to use that lock.
+
+notify() -> Which ever thread wants to update the Object, that thread should call  to the Other thread(one).
+
+notifyAll() ->Which ever thread wants to update the Object, that thread should call notifyAll() to the Other waiting threads(many)
+
+FAQ:
+
+Why wait(),notify(),notifyAll() methods are part of Object class, why not Thread class?
+
+ans. These methods will be used by the thread on different types of Objects like StringBuffer,Student,Customer,Account,.
+
+For every object the parent class is Object,so these methods comes from object class.
+
+=>methods like join,yield,sleep will be applied only on Threads, so only these methods are part of Thread class not Object class.
+
+What is the difference b/w notify() and notifyAll()?
+
+notify() -> It will give notification only to one thread which needs the lock of that object
+
+notifyAll() -> It will give notification to mulitple threads which needs the lock of that object.
+
+code----
+
+class Demo extends Thread {
+
+    // data is updated
+    int total = 0;
+
+    public void run() {
+
+        // producer thread
+        synchronized (this) {
+            System.out.println("Child thread starts the calculation");// step-2
+
+            // sum of first 100 numbers
+            for (int i = 1; i <= 100; i++)
+
+                total = total + i;
+
+            System.out.println("Child thread is giving the notifcation call");// step-3
+            this.notify();
+
+        }
+    }
+}
+
+class Test {
+    public static void main(String[] args) throws Exception {
+
+        Demo d = new Demo();
+        d.start();
+
+        // consumer thread
+        synchronized (d) {
+            System.out.println("Main Thread is calling wait() method .... ");// step-1
+            d.wait();
+            System.out.println("Main Thread got the notification call");// step-4
+            System.out.println(d.total);// 5050
+
+        }
+
+    }
+
+}
+
+output :- 
+Main Thread is calling wait() method .... 
+Child thread starts the calculation
+Child thread is giving the notifcation call
+Main Thread got the notification call
+5050
+
+Note:
+Demo class had total variable
+
+Main thread[5]
+    => needs Demo class total variable with proper value(5050)
+    => lock is applied on Demo object and call wait()
+    => wait() releases the lock of Demo object and main thread enters into sleeping state.
+
+User Defined Thread[5]
+    -> should update total variable in Demo class and it should send the notification
+    -> notify() is used so the code should be in synchronize region
+    -> it needs the lock of Demo object, now the calculation is started to update.
+    -> it will give the notification
+
+
+// efficient Code 
+
+class Producer extends Thread {
+
+    StringBuffer sb;
+
+    boolean dataProvider = false;
+
+    public Producer() {
+        // String buffer object is create with a default capacity 16
+        sb = new StringBuffer();
+    }
+
+    @Override
+    public void run() {
+        synchronized (sb) {
+            for (int i = 1; i <= 10; i++) {
+                try {
+                    sb.append(i + ": ");
+                    Thread.sleep(100);
+                    System.out.println("appending");
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            //send the notification to waiting thread
+            sb.notify();
+        }
+
+    }
+}
+
+class Consumer extends Thread {
+    Producer producer;
+
+    public Consumer(Producer producer) {
+        this.producer = producer;
+    }
+
+    @Override
+    public void run() {
+
+        synchronized (producer.sb) {
+            try {
+                // wait till the notification send by producer
+                producer.sb.wait();
+                // consume the data produced by the producer
+                System.out.println(producer.sb);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+}
+
+// Efficient way of interthread coomunication using wait() and notify()
+public class BetterCommunication {
+    public static void main(String[] args) {
+        Producer obj1 = new Producer();
+        Consumer obj2 = new Consumer(obj1);
+
+        Thread t1 = new Thread(obj1);// Producer thread
+        Thread t2 = new Thread(obj2);// consumer thread
+
+        t2.start(); // consumer should wait
+        t1.start(); // producer should wait
+
+    }
+}
