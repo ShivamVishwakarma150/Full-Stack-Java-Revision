@@ -337,7 +337,7 @@ MyThread t=new MyThread(); // Thread is in born state
 t.start(); //Thread is in ready state
 .........
 .........
-t.start(); //IllegalThreadStateException
+t.start(); //Il legalThreadStateException
 
 
 
@@ -363,3 +363,258 @@ class Thread implements Runnable{// Adapter Class
         // job for thread
     }
 }
+
+
+Example Code 
+============
+
+class MyRunnable implements Runnable{
+    @Override
+    public void run() {
+        for(int i=0;i<=5;i++){
+            System.out.println("Child Thread Thread");
+        }
+    }
+}
+
+
+public class Test1{
+    public static void main(String[] args) {
+        MyRunnable r = new MyRunnable();
+
+        Thread t = new Thread(r);
+        t.start();
+
+
+        for(int i=0;i<=5;i++){
+            System.out.println("Main Thread");
+        }
+    }
+}
+
+
+Case study
+---------------
+MyRunnable r=new MyRunnable();
+Thread t1=new Thread();
+Thread t2=new Thread(r);
+
+case1: t1.start()
+    A new thread will be created,which is responsible for executing Thread class run()
+
+output
+mainThread 
+    main thread 
+    main thread 
+    main thread 
+    main thread 
+    main thread 
+
+case2: t2.start()
+    A new thread will be created,which is responsible for executing MyRunnable run()
+
+output
+mainThread 
+    main thread 
+    main thread 
+    main thread 
+    main thread 
+    main thread 
+
+UserDefinedThread
+    child thread
+    child thread
+    child thread
+    child thread
+    child thread
+
+case3: t1.run()
+     No new thread will create, but Thread class run() method will be executed just like a normal call.
+
+output
+mainThread 
+    main thread 
+    main thread 
+    main thread 
+    main thread 
+    main thread 
+
+case4: t2.run()
+    No new thread will be created,but MyRunnable class run() will be executed just like normal method call.
+
+output
+mainthread
+    child thread
+    child thread
+    child thread
+    child thread
+    child thread
+    main thread
+    main thread
+    main thread
+    main thread
+    main thread
+
+case 5: r.start()
+    It resutls in compile time Error.
+
+case 6: r.run()
+        No new thread will be created,but MyRunnable class run() will be executed just like normal method call.
+
+output
+mainthread
+    child thread
+    child thread
+    child thread
+    child thread
+    child thread
+    main thread
+    main thread
+    main thread
+    main thread
+    main thread
+
+
+Questions
+---------------
+MyRunnable r=new MyRunnable();
+Thread t1=new Thread();
+Thread t2=new Thread(r);
+
+case1: t1.start()
+case2: t2.start()
+case3: t2.run()
+case4: t1.run()
+case5: r.start()
+case6: r.run()
+
+In which of the above cases a new Thread will be created which is responsible for the execution of MyRunnable run() method ?
+    t2.start();
+
+In which of the above cases a new Thread will be created ?
+    t1.start();
+    t2.start();
+
+In which of the above cases MvRunnable class run() will be executed ?
+    t2.start();
+    t2.run();
+    r.run();
+
+
+Different approach for creating a Thread?
+A. extending Thread class
+B. implementing Runnable interface
+
+Which approach is the best approach?
+
+a. implements Runnable interface is recomended becoz our class can extend other class through which inheritance benift can brought in to our class.
+
+Internally performance and memory level is also good when we work with interface.
+
+b. if we work with extends feature then we will miss out inheritance benefit becoz already our class has inherited the feature from "Thread class", so we normally we don't prefere extends approach rather implements approach is used in real time for working with "MultiThreading".
+
+
+Various Constructors available in Thread class
+=================================================
+a. Thread t=new Thread()
+b. Thread t=new Thread(Runnable r)
+c. Thread t=new Thread(String name)
+d. Thread t=new Thread(Runnable r,String name)
+e. Thread t=new Thread(ThreadGroup g, String name);
+f. Thread t=new Thread(ThreadGroup g, Runnable r);
+g. Thread t=new Thread(ThreadGroup g, Runnable r,String name);
+h. Thread t=new Thread(ThreadGroup g, Runnable r,String name,long stackSize);
+
+
+Alternate approach to define a Thread(not recomended)
+========================================================
+class MyThread extends Thread{
+    public void run(){
+    System.out.println("child thread");
+    }
+}
+
+class ThreadDemo {
+    public static void main(String ... args){
+        MyThread t=new MyThread();
+        Thread t1=new Thread(t);
+        t1.start();
+        System.out.printIn("main thread");
+    }
+}
+
+Output :: 2 threads are created
+MainThread
+    main thread
+ChildThread
+    child thread
+
+
+
+Internally realated
+======================
+Runnable
+ ^
+ |
+Thread
+ ^
+ |
+MyThread
+
+
+Names of the Thread
+======================
+Internally for every thread,there would be a name for the thread.
+a. name given by jvm
+b. name given by the user.
+
+eg:
+class MyThread extends Thread{
+
+}
+public class TestApp{
+    public static void main(String ... args){
+        System.out.println(Thread.currentThread().getName());//main
+
+        MyThread t=new MyThread();
+        t.start();
+        System.out.println(t.getName());//Thread-0
+
+        Thread.currentThread().setName("Yash");//Yash
+        System.out.println(Thread.currentThread().getName());//Yash
+
+        System.out.println(10/0);
+        //Exception in thread "yash" java.lang.ArithmeticException:/by zero TestApp.main()
+
+    }
+
+}
+
+
+=> It is also possible to change the name of the Thread using setName().
+=> It is possible to get the name of the Thread using getName().
+methods
+    public final String getName();
+    public final void setName(String name);
+
+
+eg#2.
+class MyThread extends Thread{
+    @Override
+    public void run(){
+        System.out.println("run() executed by Thread :: "+Thread.currentThread().getName());
+    }
+
+}
+
+public class TestApp{
+    public static void main(String ... args){
+        MyThread t=new MyThread();
+        t.start();
+        System.out.printIn("main() executed by Thread :: "+Thread.currentThread().getName());
+    }
+
+}
+
+Output :: run() executed by Thread :: Thread-0
+main() executed by Thread :: main
