@@ -1,0 +1,109 @@
+Thread priorities
+=================
+
+For every Thread in java has some priority.
+valid range of priority is 1 to 10,it is not 0 to 10.
+if we try to give a differnt value the it would result in "IllegalArgumentException".
+Thread.MIN_PRIORITY = 1
+Thread.MAX_PRIORITY = 10
+Thread.NORM_PRIORITY = 5
+Thread class does not have priorities is Thread.LOW_PRIORITY,Thread.HIGH_PRIORITY.
+Thread scheduler allocates cpu time based on "Priority".
+If both the threads have the same priority then which thread will get a chance as a pgm we can't
+predict becoz it is vendor dependent.
+We can set and get priority values of the thread using the following methods
+    a. public final void setPriority(int priorityNumber)
+    b. public final int getPriority()
+The allowed priorityNumber is from 1 to 10,if we try to give other values it would result in
+"IllegalArgumentException".
+    System.out.println(Thread.currentThread().setPriority(100);//IllegalArgumentException.
+
+DefaultPriority
+=================
+
+The default priority for only main thread is "5",where as for other threads priority will be inherited from parent to child.
+Parent Thread priority will be given as Child Thread Priority.
+
+eg#1.
+class MyThread extends Thread{}
+public class TestApp{
+    public static void main(String ... args){
+        System.out.println(Thread.currentThread().getPriority());//5
+        Thread.currentThread().setPriority(7);
+        MyThread t= new MyThread();
+        System.out.println(Thread.currentThread().getPriority());//7
+    }
+}
+
+Thread
+ ^
+ |
+extends
+ ^
+ |
+MyThread
+
+MyThread is creating by "mainThread", so priority of "mainThread" will be shared as a priority for "MyThread".
+
+eg#2.
+class MyThread extends Thread{
+    @Override
+    public void run(){
+        for (int i=1;i <= 5 ;i++ ){
+        System.out.printIn("child thread");
+        }
+    }
+}
+
+Since priority of child thread is more than main thread, jvm will execute child thread first
+whereas for the parent thread priority is 5 so it will get last chance.
+if we comment line-1, then we can't predict the order of execution becoz both the threads have
+same priority.
+    Some platform won't provide proper support for Thread priorities.
+    eg :: windows7,windows10, ...
+
+
+yield() => It causes to pause current executing Thread for giving chance for waiting Threads of
+same priority.
+    If there is no waiting Threads or all waiting Threads have low priority then same Thread can continue its execution.
+    If all the threads have same priority and if they are waiting then which thread will get chance we can't expect, it depends on ThreadScheduler.
+    The Thread which is yielded, when it will get the chance once again depends on the mercy on "ThreadScheduler" and we can't expect exactly.
+    public static native void yield()
+
+MyThread t= new MyThread() //new state or born state
+    t.start() // enter into ready state/runnable state
+if ThreadScheduler allocates processor then enters into running state.
+    a. if running Thread calls yield() then it enters into runnable state.
+if run() is finished with execution then it enters into dead state.
+
+eg#1.
+class MyThread extends Thread{
+
+    @Override
+    public void run(){
+        for (int i=1;i <= 5 ;i++ ){
+        System.out.println("child thread");
+        Thread.yield();//line-1
+        }
+
+    }
+}
+
+public class TestApp{
+    public static void main(String ... args){
+        MyThread t= new MyThread();
+        t.start();
+        for (int i=1;i <= 5 ;i++ ){
+            System.out.println("Parent Thread");
+        }
+
+    }
+}
+
+Note ::
+If we comment line-1, then we can't expect the output becoz both the threads have same priority then which thread the ThreadScheduler will schedule is not in the hands of programmer
+
+but if we don't comment line-1, then there is a possibility of main thread getting more no of times, so main thread execution is faster then child thread will get chance.
+
+Note: Some platforms wont provide proper support for yield(),becuase it is getting the execution
+code from other language prefereably from 'C'.
