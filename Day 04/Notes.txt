@@ -107,3 +107,110 @@ but if we don't comment line-1, then there is a possibility of main thread getti
 
 Note: Some platforms wont provide proper support for yield(),becuase it is getting the execution
 code from other language prefereably from 'C'.
+
+
+
+b. join()
+    If the thread has to wait untill the other thread finishes its execution then we need to go for join().
+    if t1 executes t2.join() then t1 should should wait till t2 finishes its execution.
+    t1 will be entered into waiting state untill t2 completes, once t2 completes then t1 can continue with its execution.
+
+eg#1.
+venue fixing ========> t1.start()
+wedding card printing =======> t2.start()====> t1.join()
+wedding card distrubution ====> t3.start() ====> t2.join()
+
+
+Note: While one thread is in waiting state and if one more thread interupts then it would result
+in "InteruptedException".InteruptedException is checkedException which should always be
+handled.
+
+Thread t =new Thread();//new/born state
+t.start();//ready/runnable state
+-> If T.S allocates cpu time then Thread enters into running state
+-> If currently executing Thread invokes t.join(),t.join(1000),t.join(1000,100), then it
+would enter into waiting state.
+-> If the thread finishes the execution/time expires/interupted then it would come back to
+ready state/runnable state.
+-> If run() is completed then it would enter into dead state.
+
+
+class MyThread extends Thread{
+    @Override
+    public void run(){
+        for (int i=1;i <= 10 ;i++.){
+            System.out.printin("Sita Thread");
+            try{
+
+            Thread.sleep(2000);
+
+            catch (InterruptedException e){
+            }
+        }
+    }
+}
+
+public class Test3 {
+    public static void main(String ... args)throws InterruptedException{
+        MyThread t=new MyThread();
+        t.start();
+        t.join(10000);//line-n1
+        
+        for (int i=1;i <= 10;i++){
+        System.out.printIn("rama thread");
+        }
+
+    }
+
+}
+
+
+sleep()
+===========
+If a thread dont' want to perform any operation for a particular amount of time then we
+should go for sleep().
+
+Signature
+    public static native void sleep(long ms) throws InterruptedException
+    public static void sleep(long ms,int ns) throws InterruptedException
+
+every sleep method throws InterruptedException, which is a checkedexception so we should compulsorily handle the exception using
+try catch or by throws keyword otherwise it would result in compile time error.
+
+Thread t=new Thread(); //new or born state
+t.start() // ready/runnable state
+
+=> If T.S allocates cpu time then it would enter into running state.
+=> If run() completes then it would enter into dead state.
+
+
+=> If running thread invokes sleep(1000)/sleep(1000,100) then it would enter into Sleeping state
+=> If time expires/'if steeping thread got interrupted then thread would come back to "ready/runnable state".
+
+
+
+eg#1.
+public class SlideRotator {
+    public static void main(String ... args)throws InterruptedException{
+
+        for (int i=1;i <= 10 ;i++){
+        System.out.printin("Slide: "+i);
+        Thread.sleep(5000);
+        }
+
+    }
+}
+
+Output ::
+Slide :: 1
+Slide :: 2
+Slide :: 3
+Slide :: 4
+Slide :: 5
+Slide :: 6
+Slide :: 7
+Slide :: 8
+Slide :: 9
+Slide :: 10
+
+
