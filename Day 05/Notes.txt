@@ -1,0 +1,225 @@
+Interupting Thread 
+===================
+
+public void interrupt()
+
+=> If thread is in sleeping state or in waiting state we can interupt a thread.
+
+eg#1.
+class MyThread extends Thread{
+    @Override
+    public void run(){
+        try{
+            for (int i=1;i <= 10;i++ ){
+            System.out.printIn("l am lazy thread");
+            Thread.sleep(2000);
+        }catch (InterruptedException e){
+            System.out.println("I got interrupted");
+            }
+        }
+    }       
+}
+
+public class Test3 {
+    public static void main(String ... args)throws InterruptedException{
+
+        MyThread t=new MyThread();
+        t.start();
+
+        t.interrupt();//line-n1
+        System.out.printn("End of Main ... ");
+
+    }
+}
+
+Scenario :: If a comment line-n1
+ 2 thread
+a. Main Thread
+  End of Main ...
+b. Child Thread
+  I am lazy thread
+
+
+
+Scneario :: If t.interrupt() then
+ 2 thread
+a. Main Thread
+  main thread
+b. Child Thread
+  I am lazy thread
+  I got interrupted
+
+
+eg#2.
+class MyThread extends Thread{
+        @Override
+        public void run(){
+            for (int i=1;i <= 10000 ;i++){
+            System.out.println("l am lazy thread : "+i);
+            }
+
+            System.out.println("I am entering into sleeping state");
+            try{
+            Thread.sleep(2000);
+            }
+            catch (InterruptedException ie){
+                ie.printStackTrace();
+            }
+            
+        }
+}
+
+public class TestApp {
+    public static void main(String[] args)throws InterruptedException {
+
+        MyThread t=new MyThread();
+        t.start();
+
+        t.interrupt();//line-n1
+        System.out.println("main thread");
+    }
+}
+
+line-n1 is commented then no problem
+line-n1 is not commented, then interrupt() will wait till the Thread enters into waiting state/sleeping state.
+
+Note ::
+If thread is interrupting another thread, but target thread is not in waiting state/sleeping state then there would be no exception.
+interrupt() call be waiting till the target thread enters into waiting state/sleeping state so this call wont be wasted.
+once the target thread enters into waiting state/sleeping state then interrupt() will interrupt and it causes the exception.
+interrupt() call will be wasted only if the Thread does not enters into waiting state/sleeping state.
+
+
+yield() join() sleep()
+=============================
+
+1) Purpose
+    yield()
+        To pause current executing Thread for giving the chance of remaining waiting Threads of same priority.
+    join()
+        If a Thread wants to wait until completing some other Thread then we should go for join.
+    sleep()
+        If a Thread don't want to perform any operation for a particular amount of time then we should go for sleep() method.
+
+2) Is it static
+    yield() yes
+    join() no
+    sleep() yes
+
+3) Is it final?
+    yield() no
+    join() yes
+    sleep() no
+
+4) Is it overloaded?
+    yield() no
+    join() yes
+    sleep() yes
+
+5) Is it throws IE?
+    yield() no
+    join() yes
+    sleep() yes
+
+6) Is it native method?
+    yield() yes
+    join() no
+    sleep()
+        sleep(long ms) -- >native
+        sleep(long ms,int ns) -- >non-native
+
+
+using lambda expression
+=========================
+
+Runnable r = ()-> {
+
+    for (int i = 1;i <= 5 ; i++){
+        System.out.println("child thread");
+    }
+}
+
+Thread t = new Thread(r);
+t.start();
+
+for (int i = 1;i <= 5 ; i++ ){
+
+    System.out.println("Main thread");
+
+}
+
+
+using anonymous inner class
+==============================
+
+Runnable r = new Runnable(){
+
+    @Override
+    public void run(){
+        for (int i = 1;i <= 5 ; i++ ){
+
+        System.out.println("Main thread");
+
+        }
+
+    }
+};
+
+Thread t = new Thread(r);
+t.start();
+
+for (int i = 1;i <= 5 ; i++ ){
+    System.out.println("Main thread");
+}
+
+Eeg :2 
+
+Thread t = new Thread(new Runnable (){
+
+    @Override
+    public void run(){
+    for (int i = 1;i <= 5 ;i++ ){
+
+    System.out.println("child thread");
+    }
+    }
+
+});
+
+t.start();
+
+
+Eg :3
+
+new Thread(new Runnable(){
+    @Override
+    public void run(){
+
+        for (int i = 1;i <= 5 ;i++ ){
+
+        System.out.println("child thread");
+        }
+    }
+}).start ();
+
+
+Eg: 4
+
+    new Thread(()-> {
+        for (int i = 1;i <= 5 ; i++ ){
+
+        System.out.println("child thread");
+
+        }
+
+    }) .start();
+
+
+synchronization
+====================
+1. synchronized is a keyword applicable only for methods and blocks
+2. if we declare a method/block as synchronized then at a time only one thread can execute that method/block on that object.
+3. The main advantage of synchronized keyword is we can resolve data inconsistency problems.
+4. But the main disadvantage of synchronized keyword is it increases waiting time of the Thread and effects performance of the system.
+5. Hence if there is no specific requirement then never recommended to use synchronized keyword.
+6. Internally synchronization concept is implemented by using lock concept.
