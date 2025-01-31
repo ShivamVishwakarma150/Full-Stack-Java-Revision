@@ -557,3 +557,123 @@ synchronized(d){
 If a thread go a lock of particular object d, then it is allowed to execute that block
 
 
+
+Eg #1
+
+class Display
+
+public void wish(String name){
+    
+        ;;;;;; //1-lakh lines of code
+
+        synchronized(this){
+            for (int i=1;i <= 5;i++ ){
+            System.out.print("Good morning:");
+            try{
+            Thread.sleep(2000);
+            }catch (InterruptedException e){}
+
+            System. out.println(name);
+            }
+        }
+
+        ;;;;;;;;;;; //1-lakh lines of code``
+}
+
+
+class MyThread extends Thread{
+
+    Display d;
+    String name;
+
+    MyThread(Display d,String name){
+        this.d = d;
+        this.name =name;
+    }
+
+    @Override
+    public void run(){
+        d.wish(name);
+    }
+}
+
+
+public Class Test {
+    public static void main(String[] args){
+        Display d = new Dsiplay();
+
+        MyThread t1 = new MyThread(d,"Yuvi");
+        MyThread t2 = new MyThread(d,"Dhoni");
+
+        t1.start();
+        t2.start();
+    }
+}
+
+
+Note :: 2 object, 2 thread, but the thread which gets a chance applied class level lock so output is regular.
+
+Note :: lock concept applicable only for objects and class types, but not for primitive types. if we try to do it would result in compile time error.
+
+eg :: int x=10;
+synchronized(x){
+    //CE: unexpected type found:int required:reference
+} 
+
+Eg#2
+
+
+class Display
+
+public void wish(String name){
+    
+        ;;;;;; //1-lakh lines of code
+
+        synchronized(this){
+            for (int i=1;i <= 5;i++ ){
+            System.out.print("Good morning:");
+            try{
+            Thread.sleep(2000);
+            }catch (InterruptedException e){}
+
+            System. out.println(name);
+            }
+        }
+
+        ;;;;;;;;;;; //1-lakh lines of code``
+}
+
+
+class MyThread extends Thread{
+
+    Display d;
+    String name;
+
+    MyThread(Display d,String name){
+        this.d = d;
+        this.name =name;
+    }
+
+    @Override
+    public void run(){
+        d.wish(name);
+    }
+}
+
+
+public Class Test {
+    public static void main(String[] args){
+        Display d1 = new Dsiplay();
+        Display d2 = new Dsiplay();
+
+        MyThread t1 = new MyThread(d1,"Yuvi");
+        MyThread t2 = new MyThread(d2,"Dhoni");
+
+        t1.start();
+        t2.start();
+    }
+}
+
+
+Output : irregular output because two object and two threads acting on two different objects.
+
