@@ -1,0 +1,173 @@
+InterThreadCommunication (remember postbox example)
+=======================================================
+
+Two threads can communicate each other with the help of
+a. notify()
+b. notifyAll()
+c. wait()
+
+notify()=> Thread which is performing updation should call notify(),so the waiting thread will
+get notification so it will continue with its execution with the updated items.
+wait() => Thread which is expecting notification/updation should call wait(), immediately the
+Thread will enter into waiting state.
+
+wait(),notifyAll(),notify() is present in Object class, but not in Thread class why?
+=> Thread will call wait(),notify(),notifyall() on any type of objects like Student,Customer,Engineer.
+
+If a thread wants to call wait(),notify()/notifyall() then compulsorily the thread should be
+the owner of the object otherwise it would result in "IllegalMonitorStateException".
+We say thread to be owner of that object if thread has lock of that object.
+It means these methods are part of synchronized block or synchronized method, if we try to use
+outside synchronized area then it would result in RunTimeException called "IllegalMonitorStateException".
+
+if a thread calls wait() on any object, then first it immediately releases the lock on that object and it enters into waiting state.
+if a thread calls notify() on any object,then he may or may not release the lock on that object immediately.
+Except wait(),notify(),notifyAll() lock can't be relased by other methods.
+
+Note ::
+yield(),sleep(),join() => can't release the lock.
+wait(),notify(),notifyAll() => will release the lock,otherwise interthread communication can't happen.
+
+Once a Thread calls wait(), notify(), notifyAll() methods on any object then it releases the lock of that particular object but
+not all locks it has.
+
+Method prototype of wait(),notify(),notifyAll()
+1. public final void wait()throws InterruptedException
+2. public final native void wait(long ms)throws InterruptedException
+3. public final void wait(long ms,int ns)throws InterruptedException
+4. public final native void notify()
+5. public final void notifyAll()
+
+
+
+Interview Question
+=====================
+Methods like wait(),notify(),notifyAll() are present inside Object class why not in Thread class ?
+
+Thread will call wait(),notify(),notifyAll(), on objects like PostBox, Stack, Customer, Student....
+
+obj.wait(),obj.notify(),obj.notifyAll()
+
+These methods should be available for every object in java if the method has to be available for every object of java then those method should come form "Object" class.
+
+
+eg#1.
+class ThreadB extends Thread{
+        int total =0;
+
+        @Override
+        public void run(){
+        for (int i=0;i <= 100 ; i++){
+            total+=i;
+        }
+    }
+}
+
+public class Test {
+    public static void main(String[] args)throws InterruptedException {
+        ThreadB b=new ThreadB();
+        b.start();
+
+        stmt-1;
+        System.out.println(b.total);
+    }
+}
+
+
+A. stmt-1
+    if i replace with Thread.sleep(10000) then thread will enter into waiting statement but within 1ns only the updation value is ready.
+    with in 10 sec if the updation is not ready, then we should not use Thread.sleep(10000)
+
+B. stmt-2
+    if i replace with b.join(), then main thread will enter into waiting state,then child will execute for loop,till then main thread has to wait.
+    main thread is waiting for updation result.
+    for (int i=0;i <= 100 ; i++){
+        total+=i;
+    }
+
+//1cr lines of code is available
+main thread has to wait till 1 cr lines of code,y main thread should wait for the complete code to finish.
+
+
+Eg#2
+class ThreadB extends Thread{
+        int total=0;
+        @Override
+        public void run(){
+            synchronized(this){
+            System.out.println("Child thread started calculation");
+            for (int i=0;i <= 100; i++){
+                total+=i;
+            }
+            System.out.printIn("Child thread trying to give notification");
+            this.notify();
+        }
+    }
+}
+
+public class Test {
+    public static void main(String[] args)throws InterruptedException {
+        ThreadB b=new ThreadB();
+        b.start():
+
+        Thread.sleep(10000);//10sec
+        synchronized(b){
+            System.out.printIn("Main thread is calling wait on B object");
+            b.wait();
+            System.out.printin("Main thread got notification");
+            System.out.printn(b.total);
+
+        }
+    }
+}
+
+Output
+========
+Child thread started calculation
+Child thread trying to give notification
+Main thread is calling wait on B object
+becoz of Thread.sleep(10000) main thread will never get notification.
+
+
+
+eg#3.
+
+class ThreadB extends Thread{
+    int total =0;
+
+    @Override
+    public void run(){
+        synchronized(this){
+            System.out.println("Child thread started calculation");
+            for (int i=0;i <= 100; i++){
+                total+=i;
+            }
+            System.out.println("Child thread trying to give notification");
+            this.notify();
+        }
+    }
+}
+
+public class Test {
+    public static void main(String[] args)throws InterruptedException {
+        ThreadB b=new ThreadB();
+        b.start();
+        Thread.sleep(1000);//10sec
+
+        synchronized(b){
+        System.out.printIn("Main thread is calling wait on B object");
+        b.wait(10000);//10sec
+        System.out.printIn("Main thread got notification");
+        System.out.println(b.total);
+        }
+
+    }
+}
+
+Output
+========
+Child thread started calculation
+Child thread trying to give notification
+Main thread is calling wait on B object for 10sec
+Main thread got notification
+5050
