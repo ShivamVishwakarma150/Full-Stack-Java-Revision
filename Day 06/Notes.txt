@@ -171,3 +171,94 @@ Child thread trying to give notification
 Main thread is calling wait on B object for 10sec
 Main thread got notification
 5050
+
+
+Producer Consumer Problem
+=========================
+
+Producer => Produce the item and update in the Queue
+Consumer => Consume the item from the Queue.
+
+
+class Producer extends Thread{
+    Producer(){
+        synchronized(q){
+            // Produce the item and update it to the queue 
+            q.notify();
+        }
+    }
+}
+
+class Consumer extends Thread{
+    Consumer(){
+        synchronized(q){
+            if(q.isEmmtpy()){
+                q.wait();
+            }
+            else{
+                // consume the item 
+            }
+        }
+    }
+}
+
+
+eg ::
+
+Difference b/w notify and notifyAll()
+======================================
+notify() => To give notification only for one waiting thread
+notifyAll() => To give notification for many waiting thread
+
+=> We can use notify() method to give notification for only one Thread. If multiple
+Threads are waiting then only one Thread will get the chance and remaining Threads has to wait for further notification.
+But which Thread will be notify(inform) we can't expect exactly it depends on JVM.
+            waiting state
+                |
+                |obj1.wait(); 60 threads are waiting
+   obj1.notify()|
+                |
+            Running state
+Among 60 threads which thread will get a chance we don't have control over that it is decided bv JVM(threadscheduler).
+
+
+=> We can use notifyAll() method to give the notification for all waiting Threads of particular object.
+All waiting Threads will be notified and will be executed one by one, because they required lock.
+
+
+Eg::
+            waiting state
+                |
+                |obj1.wait(); 60 threads are waiting
+   obj1.notifyAll()|obj2.wait(); 40 threads are waiting
+                |
+            Running state
+
+
+Note: On which object we are calling wait(), notify() and notifyAll() methods that corresponding object lock we have to get but not other object locks.
+
+eg :: Stack s1=new Stack();
+Stack s2=new Stack();
+
+synchronized(s1){
+    s2.wait();//RE: IllegalMonitorStateException
+}
+
+synchronized(s2){
+    s2.wait();(valid)
+}
+
+
+Question based on lock
+============================
+1. If a thread calls wait() immediately it will enter into waiting state without releasing any lock.(false)
+
+2. If a thread calls wait() it releases the lock of that object but may not immediately (false)
+
+3. If a thread calls wait() on any object,it releases all locks acquired by that thread and enters into waiting state(false)
+
+4. If a thread calls wait() on any object,it immediately releases the lock of that particular object and entered into waiting state(true).
+
+5. If a thread calls notify() on any object,it immediately releases the lock of that particular object(invalid)
+
+6. If a thread calls notify() on any object,it releases the lock of that object but may not immediately(true)
