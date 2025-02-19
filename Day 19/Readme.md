@@ -369,5 +369,3 @@ Final List: [A, B, C, D]
 - **Fail-Fast iterators** ensure **data consistency** by preventing unexpected modifications.  
 - **Fail-Safe iterators** allow modifications but come with extra memory usage.  
 - If multi-threading is involved, always prefer **Fail-Safe** collections like `CopyOnWriteArrayList` and `ConcurrentHashMap`.  
-
-Would you like any more details? 😊
