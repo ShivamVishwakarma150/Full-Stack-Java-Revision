@@ -225,3 +225,149 @@ System.out.println(al.get(2));  // Performance is slower than an array
 
 ### **Final Thought**
 Collections in Java are powerful tools that overcome the limitations of arrays. Understanding when to use **List, Set, or SortedSet** helps optimize performance and improve code efficiency. 🚀
+
+<br/>
+<br/>
+
+# **Fail-Fast vs Fail-Safe Iterators in Java**  
+
+When working with collections in **multi-threaded environments**, we often face issues related to **concurrent modifications**. Java provides two types of iterators to handle this:  
+
+1. **Fail-Fast Iterators**  
+2. **Fail-Safe Iterators**  
+
+---
+
+## **1. Fail-Fast Iterators**  
+
+### **Definition**  
+A **Fail-Fast iterator** throws a `ConcurrentModificationException` if a collection is modified while being iterated.  
+
+### **How it works?**  
+- When we create an iterator for a collection, the iterator maintains an internal **modification count**.  
+- If the collection is **modified (structure changed)** after the iterator is created, the modification count of the iterator **does not match** the actual modification count of the collection.  
+- As a result, `ConcurrentModificationException` is thrown.  
+
+### **Example: Fail-Fast Iterator in Action**  
+
+```java
+import java.util.*;
+
+class FailFastExample {
+    public static void main(String[] args) {
+        List<String> list = new ArrayList<>();
+        list.add("A");
+        list.add("B");
+        list.add("C");
+
+        Iterator<String> itr = list.iterator();
+
+        while (itr.hasNext()) {
+            System.out.println(itr.next());
+
+            // Modifying the list while iterating
+            list.add("D"); // Throws ConcurrentModificationException
+        }
+    }
+}
+```
+
+### **Output:**  
+```
+A
+Exception in thread "main" java.util.ConcurrentModificationException
+```
+
+### **Key Characteristics of Fail-Fast Iterators:**  
+✔ Throws `ConcurrentModificationException` when modification happens.  
+✔ Works on the original collection.  
+✔ Used in most Java **non-thread-safe** collections like `ArrayList`, `HashSet`, `HashMap`.  
+
+---
+
+## **2. Fail-Safe Iterators**  
+
+### **Definition**  
+A **Fail-Safe iterator** does **not throw an exception** even if the collection is modified during iteration.  
+
+### **How it works?**  
+- Instead of iterating over the **original collection**, it works on a **cloned copy** of the collection.  
+- Modifications to the original collection do **not** affect the iterator.  
+- This prevents `ConcurrentModificationException`.  
+
+### **Example: Fail-Safe Iterator in Action**  
+
+```java
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Iterator;
+
+class FailSafeExample {
+    public static void main(String[] args) {
+        CopyOnWriteArrayList<String> list = new CopyOnWriteArrayList<>();
+        list.add("A");
+        list.add("B");
+        list.add("C");
+
+        Iterator<String> itr = list.iterator();
+
+        while (itr.hasNext()) {
+            System.out.println(itr.next());
+
+            // Modifying the list while iterating
+            list.add("D"); // No Exception
+        }
+
+        System.out.println("Final List: " + list);
+    }
+}
+```
+
+### **Output:**  
+```
+A
+B
+C
+Final List: [A, B, C, D]
+```
+
+### **Key Characteristics of Fail-Safe Iterators:**  
+✔ **No Exception** even if the collection is modified.  
+✔ Uses a **cloned copy** of the original collection for iteration.  
+✔ Slower than Fail-Fast because of extra memory usage.  
+✔ Used in **thread-safe collections** like `CopyOnWriteArrayList`, `ConcurrentHashMap`.  
+
+---
+
+## **Comparison Table: Fail-Fast vs Fail-Safe**  
+
+| Feature            | Fail-Fast Iterator         | Fail-Safe Iterator |
+|--------------------|--------------------------|--------------------|
+| **Behavior**       | Throws `ConcurrentModificationException` | Does **not** throw an exception |
+| **Modification**   | Works on **original collection** | Works on a **cloned copy** |
+| **Multi-threading** | **Not thread-safe** | **Thread-safe** |
+| **Performance**    | **Fast**, no extra memory usage | **Slow**, uses extra memory |
+| **Collections**    | `ArrayList`, `HashSet`, `HashMap` | `CopyOnWriteArrayList`, `ConcurrentHashMap` |
+
+---
+
+## **When to Use Which Iterator?**  
+
+1. **Use Fail-Fast Iterators** when:  
+   - Performance is critical, and you want fast execution.  
+   - You do **not** need concurrent modifications.  
+   - Example: **Single-threaded applications**  
+
+2. **Use Fail-Safe Iterators** when:  
+   - You need to **modify the collection** while iterating.  
+   - You are working in a **multi-threaded** environment.  
+   - Example: **Concurrent programming** (e.g., real-time systems, web servers).  
+
+---
+
+## **Conclusion**  
+
+- **Fail-Fast iterators** ensure **data consistency** by preventing unexpected modifications.  
+- **Fail-Safe iterators** allow modifications but come with extra memory usage.  
+- If multi-threading is involved, always prefer **Fail-Safe** collections like `CopyOnWriteArrayList` and `ConcurrentHashMap`.  
+
+Would you like any more details? 😊
