@@ -1,0 +1,87 @@
+Map
+===
+=> It is not a child interface of Collection.
+=> If we want to represent group of Objects as key-value pair then we need to go for Map.
+=> Both keys and values are Objects only
+=> Duplicate keys are not allowed but values are allowed.
+=> Key-value pair is called as "Entry".
+
+        refer: Notes.png
+
+Map interface
+=================
+1. It contains 12 methods which is common for all the implementation Map Objects
+a. Object put(Object key,Object value) // To add key,value pair
+b. void putAll(Map m) // To add another map
+c. Object get(Object key) // To get the value based on key
+d. Object remove(Object key) //To remove an entry based on key
+e. boolean containsKey(Object key) //Check whether it contains key or not
+f. boolean containsValue(Object value)//Check whether it contains value or not
+g. boolean isEmpty() //To check wheter the Map is empty or not
+h. int size() //To get the size of a Map
+i. void clear() //To remove all Entry from a map
+
+
+views of a Map
+    j.Set keySet() //Convert the key's of Map into Set for reading purpose
+
+    k.Collection values() //Convert the values of Map into Set for reading purpose
+
+    l.Set entrySet() // Convert whole Entry of Map into Set for reading purpose.
+
+Entry(I)
+========
+1. Each key-value pair is called Entry.
+2. Without existence of Map,there can't be existence of Entry Object.
+3. Interface entry is defined inside Map interface.
+
+interface Map{
+    interface Entry{
+        Object getKey(); //To get the key using Map.Entry Object
+        Object getValue();//To get the value using Map.Entry Object
+        Object setValue(Object newValue);//To update the value Using Map.Entry Object
+    }
+}
+
+
+HashMap
+
+Underlying DataStructure: Hashtable
+insertion order : not preserved
+duplicate keys : not allowed
+duplicate values : allowed
+Heterogenous objects : allowed
+null insertion : for keys allowed only once, but for values can be any no.
+implementation interface: Serializable,Cloneable.
+
+
+
+Difference b/w HashMap and Hashtable
+=======================================
+
+HashMap => All the methods are not synchronized.
+Hashtable => All the methods are synchronzied.
+
+HashMap => At a time multiple threads can operate on a Object, so it is not ThreadSafe.
+Hashtable => At a time only one Thread can operate on a Object, so it is ThreadSafe.
+
+HashMap => Pefromance is high.
+Hashtable => performance is low.
+
+HashMap => null is allowed for both keys and values.
+Hashtable => null is not allowed for both keys and values,it would result in NullPointerException.
+
+HashMap => Introduced in 1.2v
+Hashtable => Introduced in 1.0v
+
+
+Constructors
+===============
+1. HashMap hm=new HashMap()
+//default capacity => 16, loadfactor => 0.75 (upon increase of data by 75% automatically size of HashMap will be doubled)
+
+2. Hashmap hm=new HashMap(int capacity);
+
+3. HashMap hm=new HashMap(int capacity,flot fillration);
+
+4. HashMap hm=new HashMap(Map m);
