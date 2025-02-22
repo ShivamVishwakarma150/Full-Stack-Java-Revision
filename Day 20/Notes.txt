@@ -85,3 +85,215 @@ Constructors
 3. HashMap hm=new HashMap(int capacity,flot fillration);
 
 4. HashMap hm=new HashMap(Map m);
+
+
+
+LinkedHashMap
+==============
+
+=> It is the child class of HashMap.
+=> It is same as HashMap,but with the following difference
+
+    HashMap => underlying datastructure is hashtable.
+    LinkedHashMap => underlying datastructure is LinkedList + hashtable.
+
+    HashMap=> insertion order not preserved.
+    LinkedHashMap => insertion order preserved.
+
+    HashMap => introduced in 1.2v
+    LinkedHashMap => introduced in 1.4v
+
+
+
+Note: for developing cache based applications, we use HashMap and LinkedHashMap where duplicates are not allowed,but insertion order preserved.
+
+IdentityHashMap
+==================
+    It is same as HashMap, with the following differences
+
+    a. In case of HashMap,jvm will use equals() to check whether the keys are duplicated or not.
+
+    equals() => meant for ContentComparison.
+
+    b. In case of IdentityHashMap,jvm wil use == operator to identify whether the keys are duplicated or not.
+
+eg#1.
+
+import java.util.HashMap;
+public class Test {
+    public static void main(String[] args){
+        HashMap hm=new HashMap();
+        Integer i1=new Integer(10);
+        Integer i2=new Integer(10);
+        hm.put(i1,"afridi");
+        hm.put(i2,"sachin");
+        System.out.println(hm);//[10= sachin][i2.equals(i1)]
+    }
+}
+
+
+Note:
+Garbage collector actions
+==========================
+
+import java.util .*;
+
+class Test
+{
+    public static void main(String[] args) throws Exception
+    {
+        Employee e = new Employee();
+
+        e = null;//Garbage object
+        System.gc();//Informing JVM to active GC thread to clean garbage object
+    }
+}
+
+class Employee
+{
+    @Override
+    public void finalize(){
+        System.out.println("Cleaning the object");
+    }
+}
+
+
+WeakHashMap
+============
+It is exactly same as HashMap, with the following differences.
+1. HashMap will always dominate Garbage Collector, that is if the Object is a part of HashMap and if the Object is Garbage Object, still Garbage Collector won't remove that Object from heap since it is a part of HashMap. HashMap dominates GarbageCollector.
+
+2. Garbage Collector will dominate WeakHashMap, that is if the Object is part of WeakHashMap and if that Object is Garbage Object, then immediately Garbage Collector will remove that Object from heap even though it is a part of WeakHashMap, so we say Garbage Collector dominates
+"WeakHashMap".
+
+Normal HashMap vs WeakHashMap code 
+
+
+Hashtable:
+==========
+=> The Underlying Data Structure for Hashtable is Hashtable Only.
+=> Duplicate Keys are Not Allowed. But Values can be Duplicated.
+=> Insertion Order is Not Preserved and it is Based on Hashcode of the Keys.
+=> Heterogeneous Objects are Allowed for Both Keys and Values.
+=> null Insertion is Not Possible for Both Key and Values. Otherwise we will get Runtime Exception Saying NullPointerException.
+=> It implements Serializable and Cloneable,but not RandomAccess.
+=> Every Method Present in Hashtable is Synchronized and Herce Hashtable Object is Thread Safe,so best suited when we work with Search Operation.
+
+Constructors:
+1) Hashtable h = new Hashtable();
+    Creates an Empty Hashtable Object with Default Initial Capacity 11 and
+    Default Fill Ratio 0.75.
+2) Hashtable h = new Hashtable(intinitialcapacity);
+3) Hashtable h = new Hashtable(intinitialcapacity, float fillRatio);
+4) Hashtable h = new Hashtable(Map m);
+
+Note;
+class Object{
+public native int hashCode();//Code is not from java language it will binded during runtime
+    @Override
+    public String toString(){
+    return getClass() + "@" + Integer.toHexString(hashCode());
+    }
+}
+
+eg#1.
+class Test{
+
+    @Override
+    public int hashcode(){
+        return 10;
+    }
+}
+
+Test t1= new Test();//Test@A
+Test t2= new Test();//Test@A
+
+
+Properties:
+=> It is the Child Class of Hashtable.
+
+=> In Our Program if anything which Changes Frequently (Like Database User Name, Password, Database URLs Etc) Never Recommended to Hard Code in Java Program.
+
+=> Because for Every Change in Source File we have to Recompile, Rebuild and Redeploying Application and Sometimes Server Restart Also Required, which Creates Business Impact to the Client.
+
+=> To Overcome this Problem we have to Configure Such Type of Propertiesin Properties File.
+
+=> The Main Advantage in this Approach is if a there is a Change in Properties File, to Reflect that Change Just Redeployment is Enough, which won't Create any Business Impact.
+
+=> We can Use Properties Object to Hold Properties which are coming from Properties File.
+
+Constructor:
+Properties p = new Properties();
+
+1) public String getProperty(String pname);
+    To Get the Value associated with specified Property.
+2) public String setProperty(String pname, String pvalue);
+3) public Enumeration propertyNames();It Returns All Property Names.
+4) public void load(InputStream is);
+To Load Properties from Properties File into Java Properties Object.
+5) public void store(OutputStreamos, String comment);
+To Store Properties from Java Properties Object into Properties File
+
+import java.util.Properties;
+import java.io.*;
+
+class PropertiesDemo {
+    public static void main(String[] args) throws Exception {
+        Properties p = new Properties();
+        
+        // Load properties file
+        FileInputStream fis = new FileInputStream("abc.properties");
+        p.load(fis);
+        fis.close();  // Close the input stream after loading
+        
+        System.out.println(p);  // Print all properties
+
+        // Retrieve a specific property
+        String s = p.getProperty("Venki");
+        System.out.println("Venki: " + s);
+
+        // Set a new property
+        p.setProperty("nitin", "88888");
+
+        // Store updated properties back to file
+        FileOutputStream fos = new FileOutputStream("abc.properties");
+        p.store(fos, "Updated by Nitin for Java class");
+        fos.close();  // Close output stream
+    }
+}
+
+abc.properties
+===============
+User Name= Scott
+Password = Tiger
+Venki = 9999;
+
+
+eg2
+
+import java.util.*;
+import java.io.*;
+import java.sql.*;
+
+class PropertiesDemo {
+    public static void main(String[] args) throws Exception {
+        Properties p = new Properties();
+        
+        // Load properties file
+        FileInputStream fis = new FileInputStream("db.properties");
+        p.load(fis);
+        fis.close();  // Close input stream after loading
+        
+        // Retrieve database connection details
+        String url = p.getProperty("url");
+        String user = p.getProperty("user");
+        String pwd = p.getProperty("pwd");
+
+        // Establish database connection
+        Connection con = DriverManager.getConnection(url, user, pwd);
+        System.out.println("Database connected successfully!");
+
+        // Close the connection (best practice)
+        con.close();
+    }
+}
