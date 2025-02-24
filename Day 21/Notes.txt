@@ -1,0 +1,151 @@
+Exception Handling
+======================
+1. try with resource.
+2. try with multi-catch block.
+3. Rules of Overriding associated with Exception.
+
+Remaining topics to be discussed
+=================================
+1. instaneof vs islnstanceOf(Object obj)
+2. How to create a userdefined package and in realtime project how it is used?
+
+1.7 version enhanchements
+==========================
+1. try with resource.
+2. try with multi-catch block.
+
+untill jdk 1.6, it is Compulsorily required to write finally block to close all the resources which are open as part of try block.
+
+eg::
+public class FileReadExample {
+    public static void main(String[] args) {
+        BufferedReader br = null;
+        try {
+            br = new BufferedReader(new FileReader("abc.txt"));
+        } catch (IOException ie) {
+            ie.printStackTrace();
+        } finally {
+            try {
+                if (br != null) {
+                    br.close();
+                }
+            } catch (IOException ie) {
+                ie.printStackTrace();
+            }
+        }
+    }
+}
+
+
+Problems in the apporach
+===========================
+1. Compulsorily the programmer is required to close all opened resources which increases the complexity of the program
+2. Compulsorily we should write finally block explicitly, which increases the length of the code and reviews readablity.
+To Overcome this problem SUN MS introduced try with resources in "1.7" version of jdk.
+
+try with resources
+=======================
+In this apporach, the resources which are opened as a part of try block will be closed automatically once the control reaches to
+try block normally or abnormally,so it is not required to close explicitly so the complexity of the program would be reduced.
+It is not required to write finally block explicitly,so length of the code would be reduced and readability is improved.
+
+try(BufferedReader br=new BufferedReader(new FileReader("abc.txt"))){
+    //use br and perform the necessary operation
+    //once the control reaches the end of try automatically br will be closed
+}catch(IOException ie){
+    //handling code
+}
+
+
+Rules of using try with resource
+
+1. we can declare any no of resources, but all these resources should be seperated with ;
+
+eg#1.
+try(R1;R2;R3;){
+//use the resources
+}
+
+2. All resources are said to be AutoCloseable resources iff the class implements an interface called "java.lang.AutoCloseable" either directly or indirectly
+eg :: java.io package classes, java.sql.package classes
+
+Compiled from "AutoCloseable.java"
+public interface java.lang.AutoCloseable {
+public abstract void close() throws java.lang.Exception;
+}
+    note: which ever class has implemented this interface those classes are refered as "resources".
+
+3. All resource reference by default are treated as implicitly final and hence we can't perform reassignment with in try block.
+try(BufferedReader br=new BufferedReader(new FileWriter("abc.txt"))){
+br=new BufferedReader(new FileWriter("abc.txt"));
+}
+output :: CE: can't reassign a value
+
+4. untill 1.6 version try should compulsorily be followed by either catch or finally, but from 1.7 version we can take only take try with resources without cath or finally.
+try(R){
+//valid
+}
+
+
+5. Advantage of try with resources concept is finally block will become dummy because we are not required to close resources explicitly.
+
+6. try with resource nesting is also possible.
+
+try(R1){
+    try(R2){
+        try(R3){
+
+        }
+    }
+}
+
+
+MultiCatchBlock
+=================
+Till jdk1.6, eventhough we have multiple exception having same handling code we have to write a
+seperate catch block for every exceptions, it increases the length of the code and reviews
+readability.
+try{
+
+....
+
+...
+
+....
+
+...
+
+}catch(ArithmeticException ae){
+    ae.printStackTrace();
+}catch(NullPointerExcepion ne){
+    ne.printStackTrace();
+}catch(ClassCastException ce){
+    System.out.println(ce.getMessage());
+}catch(IOException ie){
+    System.out.printin(ie.getMessage());
+}
+
+To overcome this problem SUNMS has introduced "Multi catch block" concept in 1.7 version
+try{
+
+...
+
+....
+
+....
+
+}catch(ArithmeticException | NullPointerException e){
+    e.printStackTrace();
+}catch(ClassCastException |IOException e){
+    e.printStackTrace();
+}
+
+In multicatch block,there should not be any relation b/w exception types(either child to parent or parent to child or same type) it would result in compile time error.
+
+eg :: try{
+
+}catch( ArithmeticExeption | Exception e){
+e.printStackTrace();
+}
+
+Output:CompileTime Error
